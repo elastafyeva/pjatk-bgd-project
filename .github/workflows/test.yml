@@ -1,14 +1,13 @@
-# .github/workflows/test.yml
-name: Basic Test
+name: Run Python Script
 
 on:
   push:
     branches:
-      - main  # Срабатывает на изменения в главной ветке
-  workflow_dispatch:  # Для ручного запуска
+      - main
+  workflow_dispatch:
 
 jobs:
-  test:
+  run-script:
     runs-on: ubuntu-latest
 
     steps:
@@ -20,5 +19,5 @@ jobs:
         with:
           python-version: '3.9'
 
-      - name: Run a basic test
-        run: echo "GitHub Actions are working!"
+      - name: Run Python script
+        run: python hello.py
