@@ -1,0 +1,24 @@
+# .github/workflows/test.yml
+name: Basic Test
+
+on:
+  push:
+    branches:
+      - main  # Срабатывает на изменения в главной ветке
+  workflow_dispatch:  # Для ручного запуска
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Run a basic test
+        run: echo "GitHub Actions are working!"
