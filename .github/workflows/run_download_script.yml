@@ -1,4 +1,4 @@
-name: Process Data
+name: Run Download Script
 
 on:
   push:
@@ -20,7 +20,7 @@ jobs:
           python-version: '3.9'
 
       - name: Install dependencies
-        run: pip install pandas
+        run: pip install requests
 
-      - name: Process data
-        run: python process_data.py
+      - name: Run download test
+        run: python download_test.py
