@@ -1,0 +1,5 @@
+pint~=0.24.1
+numpy~=1.26.4
+pandas~=2.2.2
+cfgrib~=0.9.15.0
+herbie-data~=2024.8.0
