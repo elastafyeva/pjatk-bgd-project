@@ -17,7 +17,8 @@ if __name__ == "__main__":
 
     # Directory for downloaded files
     data_directory = 'temp_weather_data'
-    os.makedirs(data_directory, exist_ok=True)
+    os.makedirs(data_directory, exist_ok=True) # for raw files
+    os.makedirs('data', exist_ok=True) # for processed files
 
     # Parameters for downloading and processing
     model = "gefs"
