@@ -3,7 +3,7 @@ name: Test Weather Data Downloader
 on:
   # Schedule to run the workflow every 10 minutes
   schedule:
-    - cron: "*/10 * * * *"
+    - cron: "0 * * * *"
   # Allow manual triggering of the workflow
   workflow_dispatch:
 
