@@ -1,0 +1,39 @@
+name: Test Weather Data Downloader
+
+on:
+  # Schedule to run the workflow every 10 minutes
+  schedule:
+    - cron: "*/10 * * * *"
+  # Allow manual triggering of the workflow
+  workflow_dispatch:
+
+jobs:
+  test-download:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Clone the repository
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    # Step 2: Set up Python environment
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.9"
+
+    # Step 3: Install required Python dependencies
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    # Step 4: Run the Python script in test mode
+    - name: Run in test mode
+      run: python main.py test
+
+    - name: Upload processed files
+      uses: actions/upload-artifact@v3
+      with:
+        name: processed-files
+        path: data/
