@@ -2,8 +2,8 @@ name: Test Weather Data Downloader
 
 on:
   # Schedule to run the workflow every 15 minutes (for testing purposes)
-  schedule:
-    - cron: "*/15 * * * *"
+  #schedule:
+  #  - cron: "*/15 * * * *"
   # Allow manual triggering of the workflow
   workflow_dispatch:
 
