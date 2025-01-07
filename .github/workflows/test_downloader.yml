@@ -1,9 +1,9 @@
 name: Test Weather Data Downloader
 
 on:
-  # Schedule to run the workflow every 10 minutes
-  # schedule:
-  #   - cron: "0 * * * *"
+  # Schedule to run the workflow every 15 minutes (for testing purposes)
+  schedule:
+    - cron: "*/15 * * * *"
   # Allow manual triggering of the workflow
   workflow_dispatch:
 
@@ -28,12 +28,46 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    # Step 4: Run the Python script in test mode
+    # Step 4: Install Databricks CLI
+    - name: Install Databricks CLI
+      run: |
+        python -m pip install --upgrade pip
+        pip install databricks-cli
+        databricks --version
+
+    # Step 5: Configure Databricks CLI
+    - name: Configure Databricks CLI
+      run: |
+        echo -e "$DATABRICKS_URL\n$DATABRICKS_TOKEN" | databricks configure --token
+      env:
+        DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+        DATABRICKS_URL: ${{ secrets.DATABRICKS_URL }}
+
+    # Step 6: Start Databricks Cluster
+    - name: Start Databricks Cluster
+      run: |
+        sudo apt-get update && sudo apt-get install -y jq
+        CLUSTER_ID="0107-124437-evh825ul"
+        STATUS=$(databricks clusters get --cluster-id $CLUSTER_ID | jq -r '.state')
+        if [ "$STATUS" != "RUNNING" ]; then
+          databricks clusters start --cluster-id $CLUSTER_ID
+          while [ "$(databricks clusters get --cluster-id $CLUSTER_ID | jq -r '.state')" != "RUNNING" ]; do
+            echo "Waiting for cluster to start..."
+            sleep 30
+          done
+        fi
+      env:
+        DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+
+    # Step 7: Run the Python script in test mode
     - name: Run in test mode
       run: python main.py test
 
-    - name: Upload processed files
-      uses: actions/upload-artifact@v3
-      with:
-        name: processed-files
-        path: data/
+    # Step 8: Upload files to DBFS
+    - name: Upload files to DBFS
+      run: |
+        for file in data/*.csv; do
+          databricks fs cp $file dbfs:/FileStore/tables/${{ github.run_id }}/$(basename $file)
+        done
+      env:
+        DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}

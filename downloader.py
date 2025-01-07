@@ -8,6 +8,32 @@ from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
+def generate_filename(file_path, output_dir):
+    """
+    Generates a processed filename with date, time, and forecast hour extracted from the input file path.
+
+    Args:
+        file_path (str): The path to the raw file (e.g., temp_weather_data/gefs/20250106/geavg.t06z.pgrb2a.0p50.f006).
+        output_dir (str): The directory where the processed file will be saved.
+
+    Returns:
+        str: The full path of the generated file name.
+    """
+    # Extract the date, time, and forecast hour from the file path
+    path_parts = file_path.split('/')
+    date_part = path_parts[-2]  # Extract '20250106'
+    file_name_parts = path_parts[-1].split('.')
+    time_part = file_name_parts[1]  # Extract 't06z'
+    forecast_hour = file_name_parts[-1]  # Extract 'f006'
+
+    # Construct the new file name
+    new_file_name = f"processed_{date_part}_{time_part}_{forecast_hour}.csv"
+
+    # Define the full path for saving the processed CSV file
+    csv_file_path = os.path.join(output_dir, new_file_name)
+
+    return csv_file_path
+
 def download_archive(start_date, end_date, model, product, member, fxx, data_directory, other_params):
     try:
         logger.info(f"Creating FastHerbie object for range {start_date} to {end_date}")
@@ -74,8 +100,7 @@ def preprocess(task):
         )
 
         # Save the processed DataFrame to a CSV file
-        file_name = '_'.join(str(file_path).split('/')[-1].split('.'))
-        csv_file_path = os.path.join(f"data/processed_{file_name}.csv")
+        csv_file_path = generate_filename(file_path, "data")
         final_df.to_csv(csv_file_path, index=False)
         logger.info(f"Processed data saved to: {csv_file_path}")
 

@@ -7,6 +7,40 @@ def _get_vertical_coordinate_name(ds, vertical_level_id, base_coords_names):
     vertical_coordinate = list(set(list(ds[vertical_level_id].coords)) - set(base_coords_names))[0]
     return vertical_coordinate
 
+import xarray as xr
+
+def select_region(ds, lat_min, lat_max, lon_min, lon_max):
+    """
+    Selects a geographic region from the dataset, handling longitude wrapping if necessary.
+
+    Args:
+        ds (xarray.Dataset or xarray.DataArray): The dataset or data array to select from.
+        lat_min (float): Minimum latitude (southern boundary).
+        lat_max (float): Maximum latitude (northern boundary).
+        lon_min (float): Minimum longitude (western boundary, in 0-360 format).
+        lon_max (float): Maximum longitude (eastern boundary, in 0-360 format).
+
+    Returns:
+        xarray.Dataset or xarray.DataArray: The selected region.
+    """
+    if lon_min <= lon_max:
+        # Standard case: no wrapping needed
+        return ds.sel(
+            latitude=slice(lat_max, lat_min),
+            longitude=slice(lon_min, lon_max)
+        )
+    else:
+        # Wrapping case: split into two ranges and concatenate
+        ds_part_1 = ds.sel(
+            latitude=slice(lat_max, lat_min),
+            longitude=slice(lon_min, 360)  # From lon_min to 360
+        )
+        ds_part_2 = ds.sel(
+            latitude=slice(lat_max, lat_min),
+            longitude=slice(0, lon_max)  # From 0 to lon_max
+        )
+        # Combine the two parts along the longitude axis
+        return xr.concat([ds_part_1, ds_part_2], dim="longitude")
 
 def reshape_level_variables(df, id_vars, value_vars, level_var):
     """
@@ -75,9 +109,7 @@ def process(ds, lat_min, lat_max, lon_min, lon_max, pass_list, base_coords_names
             continue
 
         # Select the relevant geographic region
-        ds_selected = ds[vertical_level_id].sel(
-            latitude=slice(lat_max, lat_min), longitude=slice(lon_min, lon_max)
-        )
+        ds_selected = select_region(ds[vertical_level_id], lat_min, lat_max, lon_min, lon_max)
 
         if vertical_coordinate == 'isobaricInhPa':
             # Filter specific pressure levels

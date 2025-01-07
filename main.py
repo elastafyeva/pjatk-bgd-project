@@ -27,8 +27,10 @@ if __name__ == "__main__":
     fxx = range(0, 24, 6)
 
     # Geographic and filtering parameters
-    lat_min, lat_max = 20, 70
-    lon_min, lon_max = 180, 210
+    lat_min = 35  # Southern latitude
+    lat_max = 70  # Northern latitude
+    lon_min = 335  # Western longitude (-25°W converted to 335°)
+    lon_max = 60  # Eastern longitude
     pass_list = ['tcc', 'st', 'soilw', 'w']
     base_coords_names = ['latitude', 'longitude', 'time', 'step', 'valid_time']
 
